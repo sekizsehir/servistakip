@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: #f59e0b;
+  --color-primary-dark: #d97706;
+  --color-primary-light: #fef3c7;
+  --color-dark: #1f2937;
+  --color-bg: #f3f4f6;
+  --color-card: #ffffff;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #f3f4f6;
+  color: #1f2937;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(-12deg) scale(1); }
+  50%       { transform: translateY(-10px) rotate(-8deg) scale(1.04); }
+}
+
+@keyframes float-delay {
+  0%, 100% { transform: translateY(0px) rotate(10deg) scale(1); }
+  50%       { transform: translateY(-12px) rotate(14deg) scale(1.06); }
+}
+
+.animate-float        { animation: float 3.6s ease-in-out infinite; }
+.animate-float-delay  { animation: float-delay 4.2s ease-in-out infinite; }
+.animate-float-slow   { animation: float 5s ease-in-out infinite; }
+.animate-float-fast   { animation: float-delay 2.8s ease-in-out infinite; }
