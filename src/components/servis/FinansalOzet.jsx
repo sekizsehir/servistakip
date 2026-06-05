@@ -293,24 +293,26 @@ export default function FinansalOzet({ kayitlar }) {
       {/* ── Başlık + Butonlar ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-bold text-gray-700 dark:text-gray-200 text-base">Finansal Özet</h2>
-          <p className="text-xs text-gray-400">{today.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          <h2 className="font-black text-gray-800 dark:text-white text-sm tracking-widest uppercase">
+            💰 KASA ÖZETİ <span className="text-gray-400 font-semibold normal-case tracking-normal text-xs">(SERVİS & SATIŞ)</span>
+          </h2>
+          <p className="text-xs text-gray-400 mt-0.5">{today.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={() => setGiderModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-semibold cursor-pointer transition-colors shadow-sm"
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
             </svg>
             Ek Giderler
           </button>
           <button
             onClick={() => setGelirModal(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 text-sm font-medium hover:bg-emerald-50 dark:hover:bg-emerald-900/20 cursor-pointer transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold cursor-pointer transition-colors shadow-sm"
           >
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Ek Gelirler

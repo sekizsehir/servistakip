@@ -2,12 +2,12 @@ import { NavLink } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 
 const navLinks = [
-  { path: '/', label: 'Servis', end: true },
-  { path: '/cari', label: 'Cari' },
-  { path: '/isler', label: 'İşler' },
-  { path: '/kayitlar', label: 'Kayıtlar' },
-  { path: '/stok', label: 'Stok' },
-  { path: '/kampanya', label: 'Kampanya' },
+  { path: '/', label: 'Servis',   icon: '🔧', end: true },
+  { path: '/cari',     label: 'Cari',      icon: '💳' },
+  { path: '/isler',    label: 'İşler',     icon: '✅' },
+  { path: '/kayitlar', label: 'Kayıtlar',  icon: '📁' },
+  { path: '/stok',     label: 'Stok',      icon: '📦' },
+  { path: '/kampanya', label: 'Kampanya',  icon: '🎯' },
 ]
 
 export default function Navbar() {
@@ -38,13 +38,14 @@ export default function Navbar() {
               to={link.path}
               end={link.end}
               className={({ isActive }) =>
-                `px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                `flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                   isActive
                     ? 'bg-amber-500 text-white shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
                 }`
               }
             >
+              <span>{link.icon}</span>
               {link.label}
             </NavLink>
           ))}
