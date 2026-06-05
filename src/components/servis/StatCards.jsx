@@ -68,14 +68,14 @@ export default function StatCards({ kayitlar }) {
   )
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {CARDS.map((card, i) => (
         <div
           key={card.key}
-          className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 border-l-4 ${card.border} shadow-sm p-5 relative overflow-hidden`}
+          className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 border-l-4 ${card.border} shadow-sm p-6 relative overflow-hidden`}
         >
           {/* Faded arka plan ikonu */}
-          <div className="absolute right-3 top-3 w-16 h-16 opacity-[0.07]">
+          <div className="absolute right-4 top-4 w-16 h-16 opacity-[0.07]">
             {card.icon}
           </div>
 
@@ -85,8 +85,8 @@ export default function StatCards({ kayitlar }) {
           </p>
 
           {/* Etiket */}
-          <div className="mt-3 flex items-center gap-2">
-            <span className={`inline-block text-[10px] font-bold tracking-widest px-2 py-0.5 rounded-full ${card.bg} ${card.text}`}>
+          <div className="mt-4 flex items-center gap-2">
+            <span className={`inline-block text-[10px] font-bold tracking-widest px-2.5 py-1 rounded-full ${card.bg} ${card.text}`}>
               {card.label}
             </span>
           </div>

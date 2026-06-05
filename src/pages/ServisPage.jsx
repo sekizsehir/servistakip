@@ -40,13 +40,13 @@ function AccordionKart({ icon, title, sub, open, onClick, children, fullWidth })
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm overflow-hidden">
       <button
         onClick={onClick}
-        className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors cursor-pointer"
+        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-3">
           <span className="text-xl">{icon}</span>
           <div>
             <p className="font-semibold text-sm text-gray-800 dark:text-white leading-tight">{title}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{sub}</p>
+            <p className="text-xs text-gray-400 mt-1">{sub}</p>
           </div>
         </div>
         <svg
@@ -58,7 +58,7 @@ function AccordionKart({ icon, title, sub, open, onClick, children, fullWidth })
       </button>
 
       {open && children && (
-        <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-4">
+        <div className="border-t border-gray-100 dark:border-gray-700 px-5 py-5">
           {children}
         </div>
       )}
@@ -184,10 +184,10 @@ export default function ServisPage() {
 
   return (
     <Layout>
-      <div className="space-y-4">
+      <div className="space-y-5">
 
         {/* Hızlı Araçlar */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-4 py-3 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-5 py-3.5 shadow-sm">
           <QuickActions />
         </div>
 
@@ -195,7 +195,7 @@ export default function ServisPage() {
         <StatCards kayitlar={kayitlar} />
 
         {/* 3 Accordion Kart */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Yeni Servis Kaydı */}
           <AccordionKart
             icon="🛠️"
@@ -243,7 +243,7 @@ export default function ServisPage() {
         </AccordionKart>
 
         {/* Kasa Özeti */}
-        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-5">
           <FinansalOzet kayitlar={kayitlar} />
         </div>
 

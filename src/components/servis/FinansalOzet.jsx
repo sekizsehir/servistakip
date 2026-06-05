@@ -34,7 +34,7 @@ function Row({ label, value, gizli, cls = 'text-gray-600 dark:text-gray-400', bo
       </span>
 
   return (
-    <div className="flex items-center justify-between py-1">
+    <div className="flex items-center justify-between py-2">
       <span className={`text-xs ${bold ? 'font-bold text-gray-700 dark:text-gray-200' : 'text-gray-500 dark:text-gray-400'}`}>
         {label}
       </span>
@@ -75,28 +75,28 @@ function FinKart({ title, sub, ciro, ekGelir, ekGider, gizli, onToggle, gradient
   return (
     <div className={`rounded-2xl overflow-hidden shadow-md border ${karPos ? 'border-green-100 dark:border-green-900/20' : 'border-red-100 dark:border-red-900/20'}`}>
       {/* Renkli Başlık */}
-      <div className={`bg-gradient-to-br ${gradient} px-4 py-3 flex items-center justify-between`}>
+      <div className={`bg-gradient-to-br ${gradient} px-5 py-4 flex items-center justify-between`}>
         <div>
           <p className="text-white font-black text-sm tracking-widest">{title}</p>
-          <p className="text-white/65 text-[11px] mt-0.5">{sub}</p>
+          <p className="text-white/70 text-[11px] mt-1">{sub}</p>
         </div>
         <EyeBtn gizli={gizli} onToggle={onToggle} />
       </div>
 
       {/* Satırlar */}
-      <div className="bg-white dark:bg-gray-800 px-4 py-3 space-y-0.5">
+      <div className="bg-white dark:bg-gray-800 px-5 py-4 space-y-0">
         <Row label="Servis Ciro"    value={ciro}       gizli={gizli} cls="text-gray-800 dark:text-white" />
         <Row label="Ek Gelir"       value={ekGelir}    gizli={gizli} cls="text-emerald-600 dark:text-emerald-400" />
 
-        <div className="h-px bg-gray-100 dark:bg-gray-700 my-2" />
+        <div className="h-px bg-gray-100 dark:bg-gray-700 my-1" />
 
         <Row label="TOPLAM GELİR"  value={toplamGelir} gizli={gizli} cls="text-gray-800 dark:text-white" bold />
         <Row label="TOPLAM GİDER"  value={ekGider}     gizli={gizli} cls="text-red-500" sign="-" />
 
-        <div className="h-px bg-gray-100 dark:bg-gray-700 my-2" />
+        <div className="h-px bg-gray-100 dark:bg-gray-700 my-1" />
 
         {/* KÂR — özel satır */}
-        <div className={`flex items-center justify-between rounded-lg px-2 py-2 mt-1 ${karPos ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+        <div className={`flex items-center justify-between rounded-xl px-3 py-3 mt-2 ${karPos ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
           <span className="text-xs font-black tracking-wider text-gray-700 dark:text-gray-200">TOPLAM KÂR</span>
           <span className={`font-black text-lg ${karPos ? 'text-emerald-600' : 'text-red-500'}`}>
             {gizli
@@ -116,11 +116,11 @@ function HaftaKart({ label, ciro, ekGelir, sayisi, maxToplam, gizli }) {
   const pct      = maxToplam > 0 ? (toplam / maxToplam) * 100 : 0
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-4 py-3">
-      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2">{label}</p>
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-5 py-4">
+      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3">{label}</p>
 
       {/* Bar */}
-      <div className="h-1 bg-gray-100 dark:bg-gray-700 rounded-full mb-3 overflow-hidden">
+      <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mb-4 overflow-hidden">
         <div className="h-full bg-amber-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
 
@@ -128,7 +128,7 @@ function HaftaKart({ label, ciro, ekGelir, sayisi, maxToplam, gizli }) {
         {gizli ? '•••••' : `₺${fmt(toplam)}`}
       </p>
 
-      <div className="flex gap-3 mt-1.5">
+      <div className="flex gap-3 mt-2">
         <span className="text-xs text-gray-400">{sayisi} servis</span>
         {ekGelir > 0 && !gizli && (
           <span className="text-xs text-emerald-500">+₺{fmt(ekGelir)} ek</span>
