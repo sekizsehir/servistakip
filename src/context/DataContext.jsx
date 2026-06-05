@@ -1,13 +1,11 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import {
-  seedIfEmpty, resetAllData,
   ServicesTable, CustomersTable, StockItemsTable,
   DeviceRecordsTable, TasksTable, CariCustomersTable,
   CariTransactionsTable, ExtraTransactionsTable, QuotesTable,
   queries,
 } from '../lib/db.js'
 
-/* ─── Context ────────────────────────────────────────────── */
 const DataContext = createContext(null)
 
 export function useData() {
@@ -16,286 +14,228 @@ export function useData() {
   return ctx
 }
 
+/* ─── Yardımcı: tabloyu yeniden yükle ───────────────────── */
+const reload = (table, setter) =>
+  table.getAll().then(setter).catch(err => console.error(table.name, err))
+
 /* ─── Provider ───────────────────────────────────────────── */
 export function DataProvider({ children }) {
 
-  /* İlk yüklemede seed */
-  useEffect(() => { seedIfEmpty() }, [])
+  const [services,          setServices]          = useState([])
+  const [customers,         setCustomers]         = useState([])
+  const [stockItems,        setStockItems]        = useState([])
+  const [deviceRecords,     setDeviceRecords]     = useState([])
+  const [tasks,             setTasks]             = useState([])
+  const [cariCustomers,     setCariCustomers]     = useState([])
+  const [cariTransactions,  setCariTransactions]  = useState([])
+  const [extraTransactions, setExtraTransactions] = useState([])
+  const [quotes,            setQuotes]            = useState([])
 
-  /* ─── State (her tablo için) ─────────────────────────── */
-  const [services,          setServices]          = useState(() => ServicesTable.getAll())
-  const [customers,         setCustomers]         = useState(() => CustomersTable.getAll())
-  const [stockItems,        setStockItems]        = useState(() => StockItemsTable.getAll())
-  const [deviceRecords,     setDeviceRecords]     = useState(() => DeviceRecordsTable.getAll())
-  const [tasks,             setTasks]             = useState(() => TasksTable.getAll())
-  const [cariCustomers,     setCariCustomers]     = useState(() => CariCustomersTable.getAll())
-  const [cariTransactions,  setCariTransactions]  = useState(() => CariTransactionsTable.getAll())
-  const [extraTransactions, setExtraTransactions] = useState(() => ExtraTransactionsTable.getAll())
-  const [quotes,            setQuotes]            = useState(() => QuotesTable.getAll())
-
-  /* ─── Generic yardımcı ───────────────────────────────── */
-  const sync = (table, setter) => setter(table.getAll())
+  /* İlk yüklemede tüm tabloları çek */
+  useEffect(() => {
+    reload(ServicesTable,          setServices)
+    reload(CustomersTable,         setCustomers)
+    reload(StockItemsTable,        setStockItems)
+    reload(DeviceRecordsTable,     setDeviceRecords)
+    reload(TasksTable,             setTasks)
+    reload(CariCustomersTable,     setCariCustomers)
+    reload(CariTransactionsTable,  setCariTransactions)
+    reload(ExtraTransactionsTable, setExtraTransactions)
+    reload(QuotesTable,            setQuotes)
+  }, [])
 
   /* ════════════════════════════════════════════════════════
      SERVICES
   ════════════════════════════════════════════════════════ */
-  const addService = useCallback((data) => {
-    const rec = ServicesTable.insert(data)
-    sync(ServicesTable, setServices)
-    return rec
+  const addService = useCallback(async (data) => {
+    try { await ServicesTable.insert(data) } catch { return }
+    reload(ServicesTable, setServices)
   }, [])
 
-  const updateService = useCallback((id, data) => {
-    const rec = ServicesTable.update(id, data)
-    sync(ServicesTable, setServices)
-    return rec
+  const updateService = useCallback(async (id, data) => {
+    try { await ServicesTable.update(id, data) } catch { return }
+    reload(ServicesTable, setServices)
   }, [])
 
-  const deleteService = useCallback((id) => {
-    ServicesTable.delete(id)
-    sync(ServicesTable, setServices)
+  const deleteService = useCallback(async (id) => {
+    try { await ServicesTable.delete(id) } catch { return }
+    reload(ServicesTable, setServices)
   }, [])
 
-  const updateServiceStatus = useCallback((id, status) => {
-    return updateService(id, { status })
-  }, [updateService])
+  const updateServiceStatus = useCallback((id, status) =>
+    updateService(id, { status }), [updateService])
 
   /* ════════════════════════════════════════════════════════
      CUSTOMERS
   ════════════════════════════════════════════════════════ */
-  const addCustomer = useCallback((data) => {
-    const rec = CustomersTable.insert(data)
-    sync(CustomersTable, setCustomers)
-    return rec
+  const addCustomer = useCallback(async (data) => {
+    try { await CustomersTable.insert(data) } catch { return }
+    reload(CustomersTable, setCustomers)
   }, [])
 
-  const updateCustomer = useCallback((id, data) => {
-    const rec = CustomersTable.update(id, data)
-    sync(CustomersTable, setCustomers)
-    return rec
+  const updateCustomer = useCallback(async (id, data) => {
+    try { await CustomersTable.update(id, data) } catch { return }
+    reload(CustomersTable, setCustomers)
   }, [])
 
-  const deleteCustomer = useCallback((id) => {
-    CustomersTable.delete(id)
-    sync(CustomersTable, setCustomers)
+  const deleteCustomer = useCallback(async (id) => {
+    try { await CustomersTable.delete(id) } catch { return }
+    reload(CustomersTable, setCustomers)
   }, [])
-
-  const getCustomerById = useCallback((id) =>
-    customers.find(c => c.id === id) ?? null, [customers])
 
   /* ════════════════════════════════════════════════════════
      STOCK ITEMS
   ════════════════════════════════════════════════════════ */
-  const addStockItem = useCallback((data) => {
-    const rec = StockItemsTable.insert(data)
-    sync(StockItemsTable, setStockItems)
-    return rec
+  const addStockItem = useCallback(async (data) => {
+    try { await StockItemsTable.insert(data) } catch { return }
+    reload(StockItemsTable, setStockItems)
   }, [])
 
-  const updateStockItem = useCallback((id, data) => {
-    const rec = StockItemsTable.update(id, data)
-    sync(StockItemsTable, setStockItems)
-    return rec
+  const updateStockItem = useCallback(async (id, data) => {
+    try { await StockItemsTable.update(id, data) } catch { return }
+    reload(StockItemsTable, setStockItems)
   }, [])
 
-  const deleteStockItem = useCallback((id) => {
-    StockItemsTable.delete(id)
-    sync(StockItemsTable, setStockItems)
+  const deleteStockItem = useCallback(async (id) => {
+    try { await StockItemsTable.delete(id) } catch { return }
+    reload(StockItemsTable, setStockItems)
   }, [])
 
-  const adjustStock = useCallback((id, delta) => {
-    const item = StockItemsTable.getById(id)
-    if (!item) return null
-    const rec = StockItemsTable.update(id, { quantity: Math.max(0, item.quantity + delta) })
-    sync(StockItemsTable, setStockItems)
-    return rec
+  const adjustStock = useCallback(async (id, delta) => {
+    const item = await StockItemsTable.getById(id)
+    if (!item) return
+    const qty = Math.max(0, (item.quantity || 0) + delta)
+    try { await StockItemsTable.update(id, { quantity: qty }) } catch { return }
+    reload(StockItemsTable, setStockItems)
   }, [])
 
   /* ════════════════════════════════════════════════════════
-     DEVICE RECORDS (İkinci El)
+     DEVICE RECORDS
   ════════════════════════════════════════════════════════ */
-  const addDeviceRecord = useCallback((data) => {
-    const rec = DeviceRecordsTable.insert(data)
-    sync(DeviceRecordsTable, setDeviceRecords)
-    return rec
+  const addDeviceRecord = useCallback(async (data) => {
+    try { await DeviceRecordsTable.insert(data) } catch { return }
+    reload(DeviceRecordsTable, setDeviceRecords)
   }, [])
 
-  const updateDeviceRecord = useCallback((id, data) => {
-    const rec = DeviceRecordsTable.update(id, data)
-    sync(DeviceRecordsTable, setDeviceRecords)
-    return rec
+  const updateDeviceRecord = useCallback(async (id, data) => {
+    try { await DeviceRecordsTable.update(id, data) } catch { return }
+    reload(DeviceRecordsTable, setDeviceRecords)
   }, [])
 
-  const deleteDeviceRecord = useCallback((id) => {
-    DeviceRecordsTable.delete(id)
-    sync(DeviceRecordsTable, setDeviceRecords)
+  const deleteDeviceRecord = useCallback(async (id) => {
+    try { await DeviceRecordsTable.delete(id) } catch { return }
+    reload(DeviceRecordsTable, setDeviceRecords)
   }, [])
 
-  const sellDevice = useCallback((id, { sellPrice, salePersonName, saleDate }) => {
-    const rec = DeviceRecordsTable.update(id, {
-      transactionType: 'Satıldı',
-      sellPrice, salePersonName,
-      saleDate: saleDate || new Date().toISOString().split('T')[0],
-    })
-    sync(DeviceRecordsTable, setDeviceRecords)
-    return rec
+  const sellDevice = useCallback(async (id, saleData) => {
+    try { await DeviceRecordsTable.update(id, { transaction_type: 'Satıldı', ...saleData }) } catch { return }
+    reload(DeviceRecordsTable, setDeviceRecords)
   }, [])
 
   /* ════════════════════════════════════════════════════════
      TASKS
   ════════════════════════════════════════════════════════ */
-  const addTask = useCallback((data) => {
-    const rec = TasksTable.insert({ ...data, isCompleted: false })
-    sync(TasksTable, setTasks)
-    return rec
+  const addTask = useCallback(async (data) => {
+    try { await TasksTable.insert(data) } catch { return }
+    reload(TasksTable, setTasks)
   }, [])
 
-  const updateTask = useCallback((id, data) => {
-    const rec = TasksTable.update(id, data)
-    sync(TasksTable, setTasks)
-    return rec
+  const updateTask = useCallback(async (id, data) => {
+    try { await TasksTable.update(id, data) } catch { return }
+    reload(TasksTable, setTasks)
   }, [])
 
-  const toggleTask = useCallback((id) => {
-    const task = TasksTable.getById(id)
-    if (!task) return null
-    const rec = TasksTable.update(id, { isCompleted: !task.isCompleted })
-    sync(TasksTable, setTasks)
-    return rec
+  const toggleTask = useCallback(async (id) => {
+    const task = await TasksTable.getById(id)
+    if (!task) return
+    const current = task.is_completed ?? task.isCompleted ?? false
+    try { await TasksTable.update(id, { is_completed: !current }) } catch { return }
+    reload(TasksTable, setTasks)
   }, [])
 
-  const deleteTask = useCallback((id) => {
-    TasksTable.delete(id)
-    sync(TasksTable, setTasks)
-  }, [])
-
-  /* ════════════════════════════════════════════════════════
-     CARİ MÜŞTERİLER
-  ════════════════════════════════════════════════════════ */
-  const addCariCustomer = useCallback((data) => {
-    const rec = CariCustomersTable.insert({ ...data, totalDebt: 0 })
-    sync(CariCustomersTable, setCariCustomers)
-    return rec
-  }, [])
-
-  const updateCariCustomer = useCallback((id, data) => {
-    const rec = CariCustomersTable.update(id, data)
-    sync(CariCustomersTable, setCariCustomers)
-    return rec
-  }, [])
-
-  const deleteCariCustomer = useCallback((id) => {
-    CariCustomersTable.delete(id)
-    CariTransactionsTable.setAll(CariTransactionsTable.where(t => t.customerId !== id))
-    sync(CariCustomersTable, setCariCustomers)
-    sync(CariTransactionsTable, setCariTransactions)
+  const deleteTask = useCallback(async (id) => {
+    try { await TasksTable.delete(id) } catch { return }
+    reload(TasksTable, setTasks)
   }, [])
 
   /* ════════════════════════════════════════════════════════
-     CARİ HAREKETLER
+     CARİ CUSTOMERS
   ════════════════════════════════════════════════════════ */
-  const _recalcDebt = (customerId) => {
-    const balance = queries.customerBalance(customerId)
-    CariCustomersTable.update(customerId, { totalDebt: balance })
-    sync(CariCustomersTable, setCariCustomers)
-  }
-
-  const addCariTransaction = useCallback((data) => {
-    const rec = CariTransactionsTable.insert(data)
-    sync(CariTransactionsTable, setCariTransactions)
-    _recalcDebt(data.customerId)
-    return rec
+  const addCariCustomer = useCallback(async (data) => {
+    try { await CariCustomersTable.insert(data) } catch { return }
+    reload(CariCustomersTable, setCariCustomers)
   }, [])
 
-  const deleteCariTransaction = useCallback((id) => {
-    const txn = CariTransactionsTable.getById(id)
-    CariTransactionsTable.delete(id)
-    sync(CariTransactionsTable, setCariTransactions)
-    if (txn) _recalcDebt(txn.customerId)
+  const updateCariCustomer = useCallback(async (id, data) => {
+    try { await CariCustomersTable.update(id, data) } catch { return }
+    reload(CariCustomersTable, setCariCustomers)
+  }, [])
+
+  const deleteCariCustomer = useCallback(async (id) => {
+    try { await CariCustomersTable.delete(id) } catch { return }
+    reload(CariCustomersTable, setCariCustomers)
   }, [])
 
   /* ════════════════════════════════════════════════════════
-     EK GELİR / GİDER
+     CARİ TRANSACTIONS
   ════════════════════════════════════════════════════════ */
-  const addExtraTransaction = useCallback((data) => {
-    const rec = ExtraTransactionsTable.insert(data)
-    sync(ExtraTransactionsTable, setExtraTransactions)
-    return rec
+  const addCariTransaction = useCallback(async (data) => {
+    try { await CariTransactionsTable.insert(data) } catch { return }
+    reload(CariTransactionsTable, setCariTransactions)
+    reload(CariCustomersTable, setCariCustomers)
   }, [])
 
-  const deleteExtraTransaction = useCallback((id) => {
-    ExtraTransactionsTable.delete(id)
-    sync(ExtraTransactionsTable, setExtraTransactions)
+  const deleteCariTransaction = useCallback(async (id) => {
+    try { await CariTransactionsTable.delete(id) } catch { return }
+    reload(CariTransactionsTable, setCariTransactions)
+    reload(CariCustomersTable, setCariCustomers)
   }, [])
 
   /* ════════════════════════════════════════════════════════
-     TEKLİFLER
+     EXTRA TRANSACTIONS
   ════════════════════════════════════════════════════════ */
-  const addQuote = useCallback((data) => {
-    const rec = QuotesTable.insert(data)
-    sync(QuotesTable, setQuotes)
-    return rec
+  const addExtraTransaction = useCallback(async (data) => {
+    try { await ExtraTransactionsTable.insert(data) } catch { return }
+    reload(ExtraTransactionsTable, setExtraTransactions)
   }, [])
 
-  const updateQuote = useCallback((id, data) => {
-    const rec = QuotesTable.update(id, data)
-    sync(QuotesTable, setQuotes)
-    return rec
+  const deleteExtraTransaction = useCallback(async (id) => {
+    try { await ExtraTransactionsTable.delete(id) } catch { return }
+    reload(ExtraTransactionsTable, setExtraTransactions)
   }, [])
 
-  const deleteQuote = useCallback((id) => {
-    QuotesTable.delete(id)
-    sync(QuotesTable, setQuotes)
+  /* ════════════════════════════════════════════════════════
+     QUOTES
+  ════════════════════════════════════════════════════════ */
+  const addQuote = useCallback(async (data) => {
+    try { await QuotesTable.insert(data) } catch { return }
+    reload(QuotesTable, setQuotes)
   }, [])
 
-  /* ─── Geliştirici araçları ───────────────────────────── */
-  const resetToSeed = useCallback(() => {
-    resetAllData()
-    setServices(ServicesTable.getAll())
-    setCustomers(CustomersTable.getAll())
-    setStockItems(StockItemsTable.getAll())
-    setDeviceRecords(DeviceRecordsTable.getAll())
-    setTasks(TasksTable.getAll())
-    setCariCustomers(CariCustomersTable.getAll())
-    setCariTransactions(CariTransactionsTable.getAll())
-    setExtraTransactions(ExtraTransactionsTable.getAll())
-    setQuotes(QuotesTable.getAll())
+  const updateQuote = useCallback(async (id, data) => {
+    try { await QuotesTable.update(id, data) } catch { return }
+    reload(QuotesTable, setQuotes)
   }, [])
 
-  /* ─── Context value ──────────────────────────────────── */
-  const value = {
-    /* ── Data ── */
-    services, customers, stockItems, deviceRecords,
-    tasks, cariCustomers, cariTransactions, extraTransactions, quotes,
+  const deleteQuote = useCallback(async (id) => {
+    try { await QuotesTable.delete(id) } catch { return }
+    reload(QuotesTable, setQuotes)
+  }, [])
 
-    /* ── Services ── */
-    addService, updateService, deleteService, updateServiceStatus,
-
-    /* ── Customers ── */
-    addCustomer, updateCustomer, deleteCustomer, getCustomerById,
-
-    /* ── Stock ── */
-    addStockItem, updateStockItem, deleteStockItem, adjustStock,
-
-    /* ── Device Records ── */
-    addDeviceRecord, updateDeviceRecord, deleteDeviceRecord, sellDevice,
-
-    /* ── Tasks ── */
-    addTask, updateTask, toggleTask, deleteTask,
-
-    /* ── Cari ── */
-    addCariCustomer, updateCariCustomer, deleteCariCustomer,
-    addCariTransaction, deleteCariTransaction,
-
-    /* ── Extra ── */
-    addExtraTransaction, deleteExtraTransaction,
-
-    /* ── Quotes ── */
-    addQuote, updateQuote, deleteQuote,
-
-    /* ── Dev ── */
-    resetToSeed, queries,
-  }
-
-  return <DataContext.Provider value={value}>{children}</DataContext.Provider>
+  return (
+    <DataContext.Provider value={{
+      services, addService, updateService, deleteService, updateServiceStatus,
+      customers, addCustomer, updateCustomer, deleteCustomer,
+      stockItems, addStockItem, updateStockItem, deleteStockItem, adjustStock,
+      deviceRecords, addDeviceRecord, updateDeviceRecord, deleteDeviceRecord, sellDevice,
+      tasks, addTask, updateTask, toggleTask, deleteTask,
+      cariCustomers, addCariCustomer, updateCariCustomer, deleteCariCustomer,
+      cariTransactions, addCariTransaction, deleteCariTransaction,
+      extraTransactions, addExtraTransaction, deleteExtraTransaction,
+      quotes, addQuote, updateQuote, deleteQuote,
+      queries,
+    }}>
+      {children}
+    </DataContext.Provider>
+  )
 }

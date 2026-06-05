@@ -9,29 +9,29 @@ import FinansalOzet from '../components/servis/FinansalOzet'
 import Button from '../components/shared/Button'
 import { useData } from '../context/DataContext'
 
-// Seed/DB (İngilizce camelCase) → UI (Türkçe) dönüşümü
+// Supabase (snake_case) + seed (camelCase) + eski (Türkçe) → UI (Türkçe)
 function normalize(s) {
   return {
     id:            s.id,
-    musteri:       s.musteri       ?? s.name           ?? '—',
-    telefon:       s.telefon       ?? s.phone          ?? '—',
-    cihazTuru:     s.cihazTuru     ?? s.deviceType     ?? '—',
-    marka:         s.marka         ?? s.brand          ?? '',
-    model:         s.model         ?? '',
-    ariza:         s.ariza         ?? s.fault          ?? '—',
-    pin:           s.pin           ?? null,
-    durum:         s.durum         ?? s.status         ?? 'Beklemede',
-    tarih:         s.tarih         ?? (s.createdAt ? s.createdAt.split('T')[0] : null),
-    tahminiTarih:  s.tahminiTarih  ?? s.estimatedDate  ?? null,
-    teknisyen:     s.teknisyen     ?? s.technician     ?? '—',
-    teknisyenNotu: s.teknisyenNotu ?? s.technicianNote ?? null,
-    tutar:         s.tutar         ?? s.price          ?? 0,
-    malzeme:       s.malzeme       ?? s.materialCost   ?? 0,
-    odenen:        s.odenen        ?? s.prepaid        ?? 0,
-    gorsel:        s.gorsel        ?? s.image          ?? null,
-    renk:          s.renk          ?? s.color          ?? null,
-    hafiza:        s.hafiza        ?? s.memory         ?? null,
-    imei:          s.imei          ?? null,
+    musteri:       s.musteri        ?? s.customer_name  ?? s.name           ?? '—',
+    telefon:       s.telefon        ?? s.customer_phone ?? s.phone          ?? '—',
+    cihazTuru:     s.cihazTuru      ?? s.device_type    ?? s.deviceType     ?? '—',
+    marka:         s.marka          ?? s.brand          ?? '',
+    model:         s.model          ?? '',
+    ariza:         s.ariza          ?? s.fault          ?? '—',
+    pin:           s.pin            ?? null,
+    durum:         s.durum          ?? s.status         ?? 'Beklemede',
+    tarih:         s.tarih          ?? (s.created_at    ? s.created_at.split('T')[0]   : null),
+    tahminiTarih:  s.tahminiTarih   ?? s.estimated_date ?? s.estimatedDate  ?? null,
+    teknisyen:     s.teknisyen      ?? s.technician     ?? '—',
+    teknisyenNotu: s.teknisyenNotu  ?? s.technician_note ?? s.technicianNote ?? null,
+    tutar:         Number(s.tutar   ?? s.price          ?? s.materialCost   ?? 0),
+    malzeme:       Number(s.malzeme ?? s.material_cost  ?? s.materialCost   ?? 0),
+    odenen:        Number(s.odened  ?? s.odenen         ?? s.prepaid        ?? 0),
+    gorsel:        s.gorsel         ?? s.image_url      ?? s.image          ?? null,
+    renk:          s.renk           ?? s.color          ?? null,
+    hafiza:        s.hafiza         ?? s.memory         ?? null,
+    imei:          s.imei           ?? null,
   }
 }
 
@@ -44,21 +44,25 @@ export default function ServisPage() {
   const kayitlar = useMemo(() => services.map(normalize), [services])
 
   const handleSave = useCallback((yeniKayit) => {
+    // Supabase snake_case kolon adlarıyla kaydet
     const kayit = {
-      musteri:   yeniKayit.adSoyad,
-      telefon:   yeniKayit.telefon,
-      cihazTuru: yeniKayit.cihazTuru || 'Cep Telefonu',
-      marka:     yeniKayit.marka || '',
-      model:     yeniKayit.model || '',
-      ariza:     yeniKayit.arizaAciklama || '—',
-      pin:       yeniKayit.sifre || null,
-      durum:     yeniKayit.durum || 'Beklemede',
-      tarih:     new Date().toISOString().split('T')[0],
-      teknisyen: '—',
-      tutar:     parseFloat(yeniKayit.servisUcreti) || 0,
-      malzeme:   parseFloat(yeniKayit.malzemeMaliyeti) || 0,
-      odenen:    parseFloat(yeniKayit.onOdeme) || 0,
-      gorsel:    yeniKayit.gorselUrl || null,
+      customer_name:  yeniKayit.adSoyad       || null,
+      customer_phone: yeniKayit.telefon        || null,
+      device_type:    yeniKayit.cihazTuru      || 'Cep Telefonu',
+      brand:          yeniKayit.marka          || null,
+      model:          yeniKayit.model          || null,
+      fault:          yeniKayit.arizaAciklama  || null,
+      pin:            yeniKayit.sifre          || null,
+      status:         yeniKayit.durum          || 'Beklemede',
+      price:          parseFloat(yeniKayit.servisUcreti)    || 0,
+      material_cost:  parseFloat(yeniKayit.malzemeMaliyeti) || 0,
+      prepaid:        parseFloat(yeniKayit.onOdeme)         || 0,
+      image_url:      yeniKayit.gorselUrl      || null,
+      color:          yeniKayit.renk           || null,
+      memory:         yeniKayit.hafiza         || null,
+      imei:           yeniKayit.imei           || null,
+      battery_health: yeniKayit.pilSagligi     ? parseInt(yeniKayit.pilSagligi) : null,
+      accessories:    yeniKayit.aksesuarlar    || [],
     }
     if (duzenleKayit) {
       updateService(duzenleKayit.id, kayit)
@@ -69,7 +73,7 @@ export default function ServisPage() {
   }, [duzenleKayit, addService, updateService])
 
   const handleDurumChange = useCallback((id, yeniDurum) => {
-    updateService(id, { durum: yeniDurum })
+    updateService(id, { status: yeniDurum })
   }, [updateService])
 
   const handleDuzenle = useCallback((kayit) => {
@@ -85,15 +89,12 @@ export default function ServisPage() {
     <Layout>
       <div className="space-y-5">
 
-        {/* Hızlı Eylemler */}
         <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 px-4 py-3 shadow-sm">
           <QuickActions />
         </div>
 
-        {/* İstatistik Kartları */}
         <StatCards kayitlar={kayitlar} />
 
-        {/* Servis Listesi */}
         <div>
           <div className="flex items-center justify-end gap-2 mb-3">
             <Button variant="ghost" icon="📄" onClick={() => setTeklifAcik(true)}>
@@ -111,7 +112,6 @@ export default function ServisPage() {
           />
         </div>
 
-        {/* Finansal Özet */}
         <div className="border-t border-gray-200 dark:border-gray-700 pt-5">
           <FinansalOzet kayitlar={kayitlar} />
         </div>

@@ -1,40 +1,9 @@
 /**
- * LocalStorage tabanlı veritabanı katmanı.
- * Supabase'e geçişte bu dosyayı değiştirmeniz yeterli.
- *
- * Supabase versiyonu için:
- * import { createClient } from '@supabase/supabase-js'
- * const supabase = createClient(URL, ANON_KEY)
- * — her method async olacak ve return await supabase.from(table)... olacak.
+ * Supabase tabanlı veritabanı katmanı.
+ * Tüm metodlar async/await kullanır.
  */
 
-import { ALL_SEEDS } from '../data/seed.js'
-
-const PREFIX = 'servisdb_'
-
-/* ─── Yardımcılar ────────────────────────────────────────── */
-const key   = (table) => PREFIX + table
-const read  = (table) => { try { return JSON.parse(localStorage.getItem(key(table)) || 'null') ?? [] } catch { return [] } }
-const write = (table, data) => localStorage.setItem(key(table), JSON.stringify(data))
-const uid   = () => Date.now() + Math.floor(Math.random() * 1000)
-const iso   = () => new Date().toISOString()
-
-/* ─── Seed (ilk yükleme) ─────────────────────────────────── */
-export function seedIfEmpty() {
-  Object.entries(ALL_SEEDS).forEach(([table, rows]) => {
-    if (!localStorage.getItem(key(table))) {
-      write(table, rows)
-    }
-  })
-}
-
-export function resetAllData() {
-  Object.entries(ALL_SEEDS).forEach(([table, rows]) => write(table, rows))
-}
-
-export function clearTable(table) {
-  localStorage.removeItem(key(table))
-}
+import { supabase } from './supabase.js'
 
 /* ═══════════════════════════════════════════════════════════
    GenericTable — tüm tablolar bu ile çalışır
@@ -44,71 +13,78 @@ class GenericTable {
     this.name = tableName
   }
 
-  /** Tüm kayıtları döner */
-  getAll() {
-    return read(this.name)
+  async getAll() {
+    const { data, error } = await supabase
+      .from(this.name)
+      .select('*')
+      .order('id', { ascending: false })
+    if (error) { console.error(`[${this.name}] getAll:`, error.message); return [] }
+    return data ?? []
   }
 
-  /** ID'ye göre tek kayıt */
-  getById(id) {
-    return read(this.name).find(r => r.id === id) ?? null
+  async getById(id) {
+    const { data, error } = await supabase
+      .from(this.name)
+      .select('*')
+      .eq('id', id)
+      .single()
+    if (error) return null
+    return data
   }
 
-  /** Filtreli kayıtlar */
-  where(predicate) {
-    return read(this.name).filter(predicate)
+  async where(predicate) {
+    const all = await this.getAll()
+    return all.filter(predicate)
   }
 
-  /** Yeni kayıt ekle */
-  insert(data) {
-    const rows = read(this.name)
-    const maxId = rows.reduce((m, r) => Math.max(m, r.id || 0), 0)
-    const record = {
-      ...data,
-      id:        data.id ?? (maxId + 1),
-      createdAt: data.createdAt ?? iso(),
-      updatedAt: iso(),
+  async insert(rawData) {
+    // Supabase otomatik yönetilen alanları çıkar
+    const { id, createdAt, updatedAt, created_at, updated_at, ...data } = rawData
+    const { data: rec, error } = await supabase
+      .from(this.name)
+      .insert(data)
+      .select()
+      .single()
+    if (error) { console.error(`[${this.name}] insert:`, error.message); throw error }
+    return rec
+  }
+
+  async update(id, rawData) {
+    const { id: _id, createdAt, updatedAt, created_at, updated_at, ...data } = rawData
+    const { data: rec, error } = await supabase
+      .from(this.name)
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single()
+    if (error) { console.error(`[${this.name}] update:`, error.message); throw error }
+    return rec
+  }
+
+  async delete(id) {
+    const { error } = await supabase
+      .from(this.name)
+      .delete()
+      .eq('id', id)
+    if (error) { console.error(`[${this.name}] delete:`, error.message); throw error }
+    return true
+  }
+
+  async count(predicate) {
+    if (predicate) {
+      const rows = await this.getAll()
+      return rows.filter(predicate).length
     }
-    write(this.name, [...rows, record])
-    return record
-  }
-
-  /** Kayıt güncelle */
-  update(id, data) {
-    const rows = read(this.name)
-    let updated = null
-    const next = rows.map(r => {
-      if (r.id !== id) return r
-      updated = { ...r, ...data, id, updatedAt: iso() }
-      return updated
-    })
-    if (updated) write(this.name, next)
-    return updated
-  }
-
-  /** Kayıt sil */
-  delete(id) {
-    const rows = read(this.name)
-    const filtered = rows.filter(r => r.id !== id)
-    write(this.name, filtered)
-    return filtered.length < rows.length
-  }
-
-  /** Tümünü değiştir */
-  setAll(rows) {
-    write(this.name, rows)
-    return rows
-  }
-
-  /** Kayıt sayısı */
-  count(predicate) {
-    const rows = read(this.name)
-    return predicate ? rows.filter(predicate).length : rows.length
+    const { count, error } = await supabase
+      .from(this.name)
+      .select('*', { count: 'exact', head: true })
+    if (error) return 0
+    return count ?? 0
   }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   Tablo instance'ları — doğrudan kullanılabilir
+   Tablo instance'ları
 ══════════════════════════════════════════════════════════ */
 export const ServicesTable          = new GenericTable('services')
 export const CustomersTable         = new GenericTable('customers')
@@ -120,79 +96,43 @@ export const CariTransactionsTable  = new GenericTable('cari_transactions')
 export const ExtraTransactionsTable = new GenericTable('extra_transactions')
 export const QuotesTable            = new GenericTable('quotes')
 
-/* ─── Özel sorgular ──────────────────────────────────────── */
+/* ─── Özel sorgular (async) ──────────────────────────────── */
 export const queries = {
-  /** Müşteriye ait servisler */
   servicesByCustomer: (customerId) =>
-    ServicesTable.where(s => s.customerId === customerId),
+    ServicesTable.where(s => s.customer_id === customerId),
 
-  /** Duruma göre servis sayısı */
-  serviceCountByStatus: () => {
-    const all = ServicesTable.getAll()
+  serviceCountByStatus: async () => {
+    const all = await ServicesTable.getAll()
     return all.reduce((acc, s) => {
-      acc[s.status] = (acc[s.status] || 0) + 1
+      const key = s.status || s.durum || 'Beklemede'
+      acc[key] = (acc[key] || 0) + 1
       return acc
     }, {})
   },
 
-  /** Bugünün servisleri */
-  todayServices: () => {
+  todayServices: async () => {
     const today = new Date().toISOString().split('T')[0]
-    return ServicesTable.where(s => s.createdAt?.startsWith(today))
+    return ServicesTable.where(s => (s.created_at || '').startsWith(today))
   },
 
-  /** Kritik stok */
   lowStock: (threshold = 5) =>
-    StockItemsTable.where(s => s.quantity <= threshold),
+    StockItemsTable.where(s => (s.quantity ?? 0) <= threshold),
 
-  /** Müşteri bakiyesi hesapla */
-  customerBalance: (customerId) => {
-    const txns = CariTransactionsTable.where(t => t.customerId === customerId)
+  customerBalance: async (customerId) => {
+    const txns = await CariTransactionsTable.where(t => t.customer_id === customerId)
     return txns.reduce((sum, t) => sum + (t.type === 'borc' ? t.amount : -t.amount), 0)
   },
 
-  /** Aylık ciro (services) */
-  monthlyRevenue: (year, month) => {
-    const prefix = `${year}-${String(month).padStart(2, '0')}`
-    return ServicesTable
-      .where(s => s.createdAt?.startsWith(prefix))
-      .reduce((s, r) => s + (r.price || 0), 0)
+  depotValue: async () => {
+    const rows = await DeviceRecordsTable.where(d => d.transaction_type === 'Depoda')
+    return rows.reduce((s, d) => s + (d.buy_price || 0), 0)
   },
 
-  /** Depodaki ikinci el cihaz değeri */
-  depotValue: () =>
-    DeviceRecordsTable
-      .where(d => d.transactionType === 'Depoda')
-      .reduce((s, d) => s + (d.buyPrice || 0), 0),
-
-  /** Tamamlanmamış görevler */
   pendingTasks: () =>
-    TasksTable.where(t => !t.isCompleted),
+    TasksTable.where(t => !t.is_completed),
 
-  /** Geciken görevler */
-  overdueTasks: () => {
+  overdueTasks: async () => {
     const today = new Date().toISOString().split('T')[0]
-    return TasksTable.where(t => !t.isCompleted && t.dueDate < today)
+    return TasksTable.where(t => !t.is_completed && t.due_date < today)
   },
 }
-
-/* ─── Supabase Geçiş Notu ────────────────────────────────── */
-/*
-  Supabase'e geçmek için:
-
-  1. pnpm add @supabase/supabase-js
-  2. src/lib/supabase.js oluştur:
-     import { createClient } from '@supabase/supabase-js'
-     export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-  3. Her method'u async yapın:
-     async getAll() {
-       const { data, error } = await supabase.from(this.name).select('*')
-       if (error) throw error
-       return data
-     }
-
-  4. Context'teki useEffect'leri güncelleyin (await + try/catch)
-  5. Realtime için:
-     supabase.channel('services').on('postgres_changes', ...).subscribe()
-*/
