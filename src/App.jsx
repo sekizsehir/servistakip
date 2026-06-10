@@ -7,6 +7,7 @@ import IslerPage from './pages/IslerPage'
 import KayitlarPage from './pages/KayitlarPage'
 import StokPage from './pages/StokPage'
 import KampanyaPage from './pages/KampanyaPage'
+import AyarlarPage from './pages/AyarlarPage'
 import TakipPage from './pages/TakipPage'
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/kayitlar" element={<KayitlarPage />} />
           <Route path="/stok" element={<StokPage />} />
           <Route path="/kampanya" element={<KampanyaPage />} />
+          <Route path="/ayarlar" element={<AyarlarPage />} />
 
           {/* Public takip sayfası — admin layout yok */}
           <Route path="/takip" element={<TakipPage />} />

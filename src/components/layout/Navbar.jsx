@@ -1,17 +1,20 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useApp } from '../../context/AppContext'
 
 const navLinks = [
-  { path: '/', label: 'Servis',   icon: '🔧', end: true },
-  { path: '/cari',     label: 'Cari',      icon: '💳' },
-  { path: '/isler',    label: 'İşler',     icon: '✅' },
-  { path: '/kayitlar', label: 'Kayıtlar',  icon: '📁' },
-  { path: '/stok',     label: 'Stok',      icon: '📦' },
-  { path: '/kampanya', label: 'Kampanya',  icon: '🎯' },
+  { path: '/',          label: 'Servis',   icon: '🔧', end: true },
+  { path: '/cari',      label: 'Cari',     icon: '💳' },
+  { path: '/isler',     label: 'İşler',    icon: '✅' },
+  { path: '/kayitlar',  label: 'Kayıtlar', icon: '📁' },
+  { path: '/stok',      label: 'Stok',     icon: '📦' },
+  { path: '/kampanya',  label: 'Kampanya', icon: '🎯' },
+  { path: '/ayarlar',   label: 'Ayarlar',  icon: '⚙️' },
 ]
 
 export default function Navbar() {
   const { darkMode, toggleDarkMode } = useApp()
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50 shadow-sm">
@@ -27,11 +30,11 @@ export default function Navbar() {
           </span>
         </div>
 
-        {/* Dikey ayraç */}
-        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 shrink-0" />
+        {/* Dikey ayraç — sadece masaüstü */}
+        <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 shrink-0 hidden md:block" />
 
-        {/* Nav linkleri */}
-        <nav className="flex items-center gap-0.5 flex-1 overflow-x-auto">
+        {/* Nav linkleri — masaüstü */}
+        <nav className="hidden md:flex items-center gap-0.5 flex-1 overflow-x-auto">
           {navLinks.map(link => (
             <NavLink
               key={link.path}
@@ -52,14 +55,14 @@ export default function Navbar() {
         </nav>
 
         {/* Sağ bölüm */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 ml-auto">
 
           {/* Destek butonu */}
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-amber-500 transition-colors cursor-pointer">
+          <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-amber-500 transition-colors cursor-pointer">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="hidden sm:inline">Destek</span>
+            <span>Destek</span>
           </button>
 
           {/* Karanlık mod toggle */}
@@ -90,17 +93,67 @@ export default function Navbar() {
           </div>
 
           {/* Dikey ayraç */}
-          <div className="w-px h-5 bg-gray-200 dark:bg-gray-700" />
+          <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 hidden sm:block" />
 
           {/* Çıkış butonu */}
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
+          <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span className="hidden sm:inline">Çıkış</span>
+            <span>Çıkış</span>
+          </button>
+
+          {/* Hamburger butonu — sadece mobil */}
+          <button
+            onClick={() => setMobileOpen(prev => !prev)}
+            className="flex md:hidden w-9 h-9 items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+            aria-label="Menü"
+          >
+            {mobileOpen ? (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
+
+      {/* Mobil menü */}
+      {mobileOpen && (
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 py-3 flex flex-col gap-1">
+          {navLinks.map(link => (
+            <NavLink
+              key={link.path}
+              to={link.path}
+              end={link.end}
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-amber-500 text-white shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white'
+                }`
+              }
+            >
+              <span>{link.icon}</span>
+              {link.label}
+            </NavLink>
+          ))}
+
+          <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Çıkış
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
